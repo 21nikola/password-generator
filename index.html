@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<title>Password Generator</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card {
+  background: #1e293b;
+  padding: 25px;
+  border-radius: 16px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+#password {
+  background: #020617;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 15px 0;
+  font-size: 18px;
+  word-break: break-all;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#password:hover {
+  background: #071029;
+}
+
+#password:active {
+  transform: scale(0.97);
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.generate { background: #22c55e; }
+.copy { background: #3b82f6; }
+
+button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+#status {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #22c55e;
+  min-height: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Password Generator</h2>
+
+  <div id="password" onclick="copyPassword()">Učitavanje...</div>
+  <div id="status"></div>
+
+  <button class="generate" onclick="generate()">Generate</button>
+  <button class="copy" onclick="copyPassword()">Copy</button>
+</div>
+
+<script>
+let words = [];
+const symbols = ["!", "@", "#", "$", "%", "&", "*", "?", "+"];
+
+/* secure random */
+function secureRandomInt(max) {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] % max;
+}
+
+function rand(arr) {
+  return arr[secureRandomInt(arr.length)];
+}
+
+function capitalizeFirst(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+/* load words.json */
+fetch("words.json")
+  .then(res => res.json())
+  .then(data => {
+    words = data.filter(w => w.length >= 4);
+    document.getElementById("password").innerText = "Klikni Generate ✅";
+    generate();
+  })
+  .catch(() => {
+    document.getElementById("password").innerText = "Greška JSON!";
+  });
+
+/* animation */
+let currentInterval;
+
+function animatePassword(finalPass) {
+  clearInterval(currentInterval);
+
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+  let iterations = 0;
+
+  currentInterval = setInterval(() => {
+    document.getElementById("password").innerText =
+      finalPass.split("")
+        .map((letter, index) => {
+          if (index < iterations) return finalPass[index];
+          return chars[Math.floor(Math.random() * chars.length)];
+        })
+        .join("");
+
+    if (iterations >= finalPass.length) clearInterval(currentInterval);
+
+    iterations += 0.5;
+  }, 30);
+}
+
+/* ✅ generator FIXED */
+function generate() {
+  if (words.length === 0) {
+    alert("Učitavanje reči...");
+    return;
+  }
+
+  let word1 = rand(words);
+  let word2 = rand(words);
+
+  while (word1 === word2) {
+    word2 = rand(words);
+  }
+
+  // obavezno: jedna reč veliko slovo
+  if (secureRandomInt(2) === 1) {
+    word1 = capitalizeFirst(word1);
+  } else {
+    word2 = capitalizeFirst(word2);
+  }
+
+  // ✅ obavezni delovi
+  let symbol = rand(symbols);
+  let number = secureRandomInt(10000);
+
+  let pass = word1 + symbol + word2 + number;
+
+  // dodatni simbol opcionalno
+  if (secureRandomInt(2) === 1) {
+    pass += rand(symbols);
+  }
+
+  // dužina 14–16
+  while (pass.length < 14) {
+    pass += rand(symbols);
+  }
+
+  if (pass.length > 16) {
+    pass = pass.slice(0, 16);
+  }
+
+  animatePassword(pass);
+}
+
+/* copy */
+function copyPassword() {
+  let text = document.getElementById("password").innerText;
+
+  if (text === "Klikni Generate ✅" || text === "Učitavanje...") return;
+
+  navigator.clipboard.writeText(text);
+
+  const status = document.getElementById("status");
+  status.innerText = "Kopirano ✅";
+
+  setTimeout(() => {
+    status.innerText = "";
+  }, 1500);
+}
+</script>
+
+</body>
+</html>
