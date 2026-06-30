@@ -2,199 +2,195 @@
 <html lang="sr">
 <head>
 <meta charset="UTF-8">
-<title>Password Generator</title>
+<title>Password Generator PRO</title>
 
 <style>
-body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+  body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-.card {
-  background: #1e293b;
-  padding: 25px;
-  border-radius: 16px;
-  width: 340px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
+  .card {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 20px;
+    width: 360px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  }
 
-#password {
-  background: #020617;
-  padding: 12px;
-  border-radius: 8px;
-  margin: 15px 0;
-  font-size: 18px;
-  word-break: break-all;
-  cursor: pointer;
-  transition: 0.2s;
-}
+  #password {
+    background: #020617;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 18px;
+  }
 
-#password:hover {
-  background: #071029;
-}
+  button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
 
-#password:active {
-  transform: scale(0.97);
-}
+  .generate { background: #22c55e; }
+  .copy { background: #3b82f6; }
 
-button {
-  padding: 10px;
-  margin: 5px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
-}
+  button:hover {
+    transform: scale(1.05);
+  }
 
-.generate { background: #22c55e; }
-.copy { background: #3b82f6; }
+  #strength {
+    margin-top: 10px;
+  }
 
-button:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
-}
+  input[type="range"] {
+    width: 100%;
+  }
 
-#status {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #22c55e;
-  min-height: 18px;
-}
+  .options {
+    text-align: left;
+    margin-top: 10px;
+  }
+
+  ul {
+    margin-top: 15px;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    background: #0f172a;
+    padding: 5px;
+    margin: 3px 0;
+    border-radius: 6px;
+    font-size: 14px;
+  }
 </style>
 </head>
 
 <body>
 
 <div class="card">
-  <h2>Password Generator</h2>
+  <h2>Password Generator 🔐</h2>
 
-  <div id="password" onclick="copyPassword()">Učitavanje...</div>
-  <div id="status"></div>
+  <div id="password">Učitavanje...</div>
 
   <button class="generate" onclick="generate()">Generate</button>
   <button class="copy" onclick="copyPassword()">Copy</button>
+
+  <div id="strength"></div>
+
+  <!-- SLIDER -->
+  <div>
+    <label>Dužina: <span id="lenValue">14</span></label>
+    <input type="range" id="length" min="8" max="32" value="14">
+  </div>
+
+  <!-- OPTIONS -->
+  <div class="options">
+    <label><input type="checkbox" id="useSymbols" checked> Simboli</label><br>
+    <label><input type="checkbox" id="useNumbers" checked> Brojevi</label>
+  </div>
+
+  <!-- HISTORY -->
+  <ul id="history"></ul>
+
 </div>
 
 <script>
 let words = [];
-const symbols = ["!", "@", "#", "$", "%", "&", "*", "?", "+"];
+const allSymbols = ["!", "@", "#", "$", "%", "&"];
 
-/* secure random */
-function secureRandomInt(max) {
-  const array = new Uint32Array(1);
-  crypto.getRandomValues(array);
-  return array[0] % max;
-}
+// učitavanje JSON
+fetch("./words.json")
+  .then(res => res.json())
+  .then(data => {
+    words = data;
+    document.getElementById("password").innerText = "Klikni Generate ✅";
+  });
 
+// slider
+const slider = document.getElementById("length");
+const lenValue = document.getElementById("lenValue");
+
+slider.oninput = function() {
+  lenValue.innerText = this.value;
+};
+
+// random helper
 function rand(arr) {
-  return arr[secureRandomInt(arr.length)];
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// capitalize prva slova
 function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-/* load words.json */
-fetch("words.json")
-  .then(res => res.json())
-  .then(data => {
-    words = data.filter(w => w.length >= 4);
-    document.getElementById("password").innerText = "Klikni Generate ✅";
-    generate();
-  })
-  .catch(() => {
-    document.getElementById("password").innerText = "Greška JSON!";
-  });
+// strength
+function checkStrength(pass) {
+  let score = 0;
+  if (pass.length >= 12) score++;
+  if (/[A-Z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
 
-/* animation */
-let currentInterval;
-
-function animatePassword(finalPass) {
-  clearInterval(currentInterval);
-
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
-  let iterations = 0;
-
-  currentInterval = setInterval(() => {
-    document.getElementById("password").innerText =
-      finalPass.split("")
-        .map((letter, index) => {
-          if (index < iterations) return finalPass[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        })
-        .join("");
-
-    if (iterations >= finalPass.length) clearInterval(currentInterval);
-
-    iterations += 0.5;
-  }, 30);
+  const levels = ["Weak", "OK", "Good", "Strong"];
+  document.getElementById("strength").innerText =
+    "Strength: " + levels[score - 1];
 }
 
-/* ✅ generator FIXED */
+// history
+function addToHistory(pass) {
+  let li = document.createElement("li");
+  li.innerText = pass;
+  document.getElementById("history").prepend(li);
+}
+
+// generator
 function generate() {
-  if (words.length === 0) {
-    alert("Učitavanje reči...");
-    return;
+  if (words.length === 0) return;
+
+  const length = parseInt(slider.value);
+  const useSymbols = document.getElementById("useSymbols").checked;
+  const useNumbers = document.getElementById("useNumbers").checked;
+
+  let pass = "";
+
+  while (pass.length < length) {
+    pass += rand(words);
+
+    if (useSymbols && pass.length < length) {
+      pass += rand(allSymbols);
+    }
+
+    if (useNumbers && pass.length < length) {
+      pass += Math.floor(Math.random() * 10);
+    }
   }
 
-  let word1 = rand(words);
-  let word2 = rand(words);
+  pass = pass.slice(0, length);
+  pass = capitalizeFirst(pass);
 
-  while (word1 === word2) {
-    word2 = rand(words);
-  }
+  document.getElementById("password").innerText = pass;
 
-  // obavezno: jedna reč veliko slovo
-  if (secureRandomInt(2) === 1) {
-    word1 = capitalizeFirst(word1);
-  } else {
-    word2 = capitalizeFirst(word2);
-  }
-
-  // ✅ obavezni delovi
-  let symbol = rand(symbols);
-  let number = secureRandomInt(10000);
-
-  let pass = word1 + symbol + word2 + number;
-
-  // dodatni simbol opcionalno
-  if (secureRandomInt(2) === 1) {
-    pass += rand(symbols);
-  }
-
-  // dužina 14–16
-  while (pass.length < 14) {
-    pass += rand(symbols);
-  }
-
-  if (pass.length > 16) {
-    pass = pass.slice(0, 16);
-  }
-
-  animatePassword(pass);
+  checkStrength(pass);
+  addToHistory(pass);
 }
 
-/* copy */
+// copy
 function copyPassword() {
   let text = document.getElementById("password").innerText;
-
-  if (text === "Klikni Generate ✅" || text === "Učitavanje...") return;
-
   navigator.clipboard.writeText(text);
-
-  const status = document.getElementById("status");
-  status.innerText = "Kopirano ✅";
-
-  setTimeout(() => {
-    status.innerText = "";
-  }, 1500);
+  document.getElementById("strength").innerText = "Kopirano ✅";
 }
 </script>
 
