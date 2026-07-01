@@ -40,7 +40,6 @@ Additionally, the password history feature helps by:
 ---
 
 ## 📂 Project Structure
-
 .
 ├── index.html   # Main application (HTML, CSS, JS)
 ├── words.json   # Word list for password generation
