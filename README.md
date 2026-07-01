@@ -1,84 +1,114 @@
-🔐 Password Generator PRO
+# 🔐 Password Generator PRO
+
 A lightweight web-based password generator designed for flexibility and practical usage — especially useful for system administrators who frequently need different types of passwords.
 
-🚀 Features
-✅ Generate secure passwords instantly
-✅ Adjustable password length (8–32 characters)
-✅ Option to include:
-Symbols (! @ # $ % &)
-Numbers (0–9)
+---
 
-✅ Password strength indicator (Weak / OK / Good / Strong)
-✅ Copy password to clipboard with one click
-✅ Password history log for quick reference
+## 🚀 Features
 
-🧠 Purpose
+- ✅ Generate secure passwords instantly  
+- ✅ Adjustable password length (8–32 characters)  
+- ✅ Option to include:
+  - Symbols (! @ # $ % &)
+  - Numbers (0–9)  
+- ✅ Password strength indicator (Weak / OK / Good / Strong)  
+- ✅ Copy password to clipboard with one click  
+- ✅ Password history log for quick reference  
+
+---
+
+## 🧠 Purpose
+
 This tool is built with real-world sysadmin needs in mind.
+
 In many environments, password policies can vary:
-Sometimes symbols and numbers are required
-Sometimes simpler passwords are needed (for legacy systems, temporary access, etc.)
+
+- Sometimes **symbols and numbers are required**
+- Sometimes **simpler passwords are needed** (legacy systems, temporary access, etc.)
 
 Because of this, the generator allows:
 
-✅ Enabling/disabling symbols
-✅ Enabling/disabling numbers
+- ✅ Enabling/disabling symbols  
+- ✅ Enabling/disabling numbers  
 
 Additionally, the password history feature helps by:
-Keeping track of recently generated passwords
-Allowing quick reuse or reference when working across multiple systems
-Improving workflow efficiency during repetitive administrative tasks
 
-📂 Project Structure
+- Tracking recently generated passwords  
+- Allowing quick reuse across multiple systems  
+- Improving efficiency in repetitive administrative tasks  
+
+---
+
+## 📂 Project Structure
+
 .
-├── index.html        # Main application (HTML, CSS, JS)
-├── words.json        # Word list used for password generation
+├── index.html   # Main application (HTML, CSS, JS)
+├── words.json   # Word list for password generation
 
-⚙️ How It Works
+## ⚙️ How It Works
 
-The app loads a word list from words.json
-It generates a password by combining:
-Random words
-Optional symbols and numbers
+- Loads a word list from `words.json`  
+- Generates a password using:
+  - Random words  
+  - Optional symbols and numbers  
+- Trims password to selected length  
+- Capitalizes the first letter  
+- Calculates strength based on:
+  - Length  
+  - Uppercase letters  
+  - Numbers  
+  - Special characters  
+- Saves the password in the history list  
 
-The password is trimmed to the selected length
-The first letter is capitalized
-Strength is calculated based on:
-Length
-Uppercase letters
-Numbers
-Special characters
-The password is saved in the history list
+---
 
-🖥️ Usage
+## 🖥️ Usage
 
-Open index.html in your browser
-Adjust settings:
-Choose length using the slider
-Enable/disable symbols and numbers
+1. Open `index.html` in your browser  
+2. Adjust settings:
+   - Choose length using the slider  
+   - Enable/disable symbols and numbers  
+3. Click **Generate**  
+4. Click **Copy** to copy the password  
+5. View previous passwords in the history section  
 
-Click Generate
-Click Copy to save the password to clipboard
-View previously generated passwords in the history section
+---
 
-⚠️ Notes
+## ⚠️ Notes
 
-Passwords are generated locally in the browser (no external API calls)
-Clipboard access requires a modern browser
-History is stored only in the current session (not persisted)
+- Passwords are generated locally in the browser (no external API calls)  
+- Clipboard access requires a modern browser  
+- History is stored only in the current session (not persistent)  
 
-🔐 Security
+---
+
+## 🔐 Security
+
 Security is a core focus of this project.
-✅ Local Generation Only
-All passwords are generated directly in the browser. No data is sent to any server or external API.
-✅ No Data Exposure
-Generated passwords never leave the user's device, reducing the
 
-💡 Ideal For
+- ✅ **Local Generation Only**  
+  Passwords are generated entirely in the browser
 
-System administrators
-IT support engineers
-Developers
-Anyone needing fast, customizable password generation
+- ✅ **No Data Exposure**  
+  No data is sent to external servers or APIs  
 
-👨‍💻 Author
-Nikola 
+- ✅ **Session-Based History**  
+  Data is not stored permanently and is cleared on refresh  
+
+- ✅ **Privacy-First Approach**  
+  Passwords never leave the user's machine  
+
+---
+
+## 💡 Ideal For
+
+- System administrators  
+- IT support engineers  
+- Developers  
+- Anyone needing fast and customizable password generation  
+
+---
+
+## 👨‍💻 Author
+
+**Nikola Miščević**
